@@ -55,10 +55,8 @@ dm_verity_init 将自己注册成为一个DM目标设备
 + verity_ctr 构造函数，指明算法
 + verity_map 将验证函数挂在bio上
 
-从代码看上去，
-Linux默认好像是不启用DM-Verity的
 
-> 考虑到dm-verity的工作涉及到密码学，最初担心可能要修改linux加密接口的内部实现,所以下午大概翻看了相关代码 linux/crypt，后来突然想到《Android Security Intenal》中提过TPM的,TPM是满足不了文件加解密的需求,因此推断可能之前的思路有问题，很大可能不需要动密码学，或者说不需要大动,翻了一下书籍，确定磁盘加密里使用过 TPM 做 KEK,明天按照一个思路，看能不能找到Android里相关内容
+Linux默认好像是不启用DM-Verity的
 
 MD 中几个关键的数据结构
 ```c
