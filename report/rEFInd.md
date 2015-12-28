@@ -2,6 +2,11 @@
 
 rEFInd 是一个 UEFI 启动管理器(boot manager)。它被设计为平台无关，可启动多个操作系统。 
 
+>rEFInd 是一个boot manager，而不是一个boot loader。
+>boot loader程序负责载入OS内核，并将控制权交付给内核。
+>boot manager在计算机启动后，提供一个选项目录供用户选择。
+>很多流行的boot manager，如GRUB，同时也是一个boot loader，因此许多用户心里比较迷糊这两个概念。
+
 ## 安装及细节
 
 ### Linux 中安装 rEFInd
