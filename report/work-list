@@ -1,0 +1,20 @@
+工作内容
+
+1. 锁定 UEFI，强制要求Secrue Boot Control(?)，必须从 rEFInd 开始
+     这个应该在我们后面rEFInd定制完成后，由公司与相关厂商协商
+
+2. 定制 rEFInd 验证其它 boot loader / boot manager
+    rEFInd 载入其他 boot loader / boot manager 之前需要进行验证
+    当前体系支持EFI文件签名
+    > 原计划能够在元旦前完成，依照现在进度估计顺延两到三天。
+
+3. boot loader 载入系统内核前也需要验证
+    这个需要确定我们选择那个boot loader再进一步确定我们的工作
+    > 初期还是现在x86上做这个，短期真的没有时间去搞uboot那一套了。
+
+4. 内核启用 dm-verity，确保系统的完整性
+    支持国产算法实现
+    > 按照计划日期完成
+
+5. 内核启动dm-crypt，确保用户数据安全
+    与 4 原理差不多
