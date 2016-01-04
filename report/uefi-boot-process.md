@@ -17,6 +17,11 @@ UEFI(Unified Extensible Firmware Interface)是一种新型固件。它引入一�
 
     > 注意： 在有些 UEFI 系统中，(如果在 UEFI 启动菜单没有定制条目的话，又）想要启动时加载UEFI应用，加载UEFI应用的方法)唯一可行的方法是把它放在这个固定位置：<EFI SYSTEM PARTITION>/EFI/boot/bootx64.efi （对于 64 位的 x86 系统）
 
+#### 启动
+
+EFI 载入默认的boot loader(通常为 EFI/BOOT/bootx64.efi)或者一个文件名存放在固件闪存的 boot loader 中。
+
+
 #### UEFI 的多重引导
 
 因为每个操作系统或者提供者都可以维护自己的 EFI 系统分区中的文件，同时不影响其他系统，所以UEFI的多重启动只是简单的运行不同的UEFI程序，对应于特定操作系统的引导程序。这避免了依赖chainloading机制（通过一个引导程序加载另一个引导程序，来切换操作系统）。 

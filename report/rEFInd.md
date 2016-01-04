@@ -21,7 +21,7 @@ rEFInd 是一个 UEFI 启动管理器(boot manager)。它被设计为平台无�
 
 2. 将可执行文件、配置文件和资源文件复制到 ESP
 
-    ```
+    ```bash
     cp /usr/share/refind/refind_x64.efi /boot/efi/EFI/refind/refind_x64.efi
     cp /usr/share/refind/refind.conf-sample /boot/efi/EFI/refind/refind.conf
     cp -r /usr/share/refind/{icons,fonts,drivers_x64} /boot/efi/EFI/refind/
@@ -43,13 +43,13 @@ efibootmgr 用于修改EFI启动管理器。我主要用来修改启动顺序
 1. efibootmgr
 
     ```
-BootCurrent: 0002
-Timeout: 1 seconds
-BootOrder: 0002,0000,0001
-Boot0000* Windows Boot Manager
-Boot0001* rEFInd Boot Manager
-Boot0002* ubuntu
-```
+    BootCurrent: 0002
+    Timeout: 1 seconds
+    BootOrder: 0002,0000,0001
+    Boot0000* Windows Boot Manager
+    Boot0001* rEFInd Boot Manager
+    Boot0002* ubuntu
+    ```
 
 2. sudo efibootmgr -o 0001,0000,0000
 
