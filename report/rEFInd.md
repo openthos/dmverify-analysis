@@ -59,3 +59,12 @@ efibootmgr 用于修改EFI启动管理器。我主要用来修改启动顺序
 ### 在已有的 Windows UEFI 安装中使用 rEFInd
 
 rEFInd 兼容 UEFI Windows 安装时创建的 EFI 系统分区，因此没有必要创建或格式化另一个 FAT32 分区。只需挂载 Windows 的 ESP 并像往常一样安装 rEFInd。默认情况下，rEFInd 的自动检测功能应该识别任何现有的 Windows 引导程序。 
+
+# 关于Secure Boot启动的支持
+
+结合网络上的资料，再根据我们手头的MECHREVO验证，
+rEFInd使用的自签名证书。在我们手头的设备上，是不支持的。估计其它几家支持的可能性也不大。
+设备自带的rEFInd，以及我根据最新版本编译后的rEFInd，好像也是不支持Secure Boot。
+目录中倒是有Key及MOK，估计作者有或者曾经有过计划支持Secure Boot。
+
+
