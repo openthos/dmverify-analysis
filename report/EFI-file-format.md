@@ -29,5 +29,5 @@ EFI 采用 PE 格式，更多关于PE文件格式可前往微软官方网站查�
 
 
 ## “PE文件格式”1.9版
-[更多PE文件格式细节](PE-file-format)
+[更多PE文件格式细节](PE-file-format.md)
 
