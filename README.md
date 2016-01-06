@@ -2,6 +2,8 @@
 
 ## goal
 
-## schedule
+## introdcution
 
 ## related info
+
+## contact
