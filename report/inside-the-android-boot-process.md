@@ -1,5 +1,7 @@
 # Android启动过程深入解析
 
+[原文链接](http://kpbird.com/2012/11/in-depth-android-boot-sequence-process.html)
+
 * 当按下Android设备电源键时究竟发生了什么？
 * Android的启动过程是怎么样的？
 * 什么是Linux内核？
@@ -16,7 +18,7 @@ Android是一个基于Linux的开源操作系统。x86（x86是一系列的基�
 
 当你按下电源开关后Android设备执行了以下步骤。
 
-![Android启动流程/过程](inside-the-android-boot-process.png)
+![Android启动流程/过程](inside-the-android-boot-process.png)  
  此处图片中step2中的一个单词拼写错了，Boot Loaeder应该为Boot Loader（多谢@jameslast 提醒）
 
 ## 第一步：启动电源以及系统启动
