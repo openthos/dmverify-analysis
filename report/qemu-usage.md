@@ -40,7 +40,9 @@
     -vnc：使用vnc方式显示客户机 
     -vga：设置虚拟机中的vga显卡类型，默认为“-vga cirrus” 
     -nographic：关闭qemu的图形化界面输出 
-6. 其他常用参数 
+6. 测试UEFI配置
+    -bios：指定BIOS的文件名
+7. 其他常用参数 
     -h:显示帮助手册 
     -noreboot:guest执行reboot操作时，系统关闭后退出qemu-kvm，而不会再启动虚拟机 
     -no-shutdown:虚拟机shutdown后，系统关闭后，不退出qemu-kvm进程，保持这个进程存在，他的monitor仍然可以用 
