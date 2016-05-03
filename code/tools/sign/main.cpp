@@ -10,19 +10,19 @@ static const char *ca_usage[] = {
 	" -keyfile arg    - private key file\n",
 	" -key arg        - key to decode the private key if it is encrypted\n",
 	" -cert file      - The CA certificate\n",
-	" -in file        - The input PEM encoded certificate request(s)\n",
-	" -out file       - Where to put the output file(s)\n",
+	" -in file        - The input file\n",
+	" -out file       Where-  to put the output file(s)\n",
 	NULL
 };
 
 int main(int argc, char *argv[])
 {
-	char *keyfile;
-	char *certfile;
-	char *infile;
-	char *outfile;
+	char *keyfile = 0;
+	char *certfile = 0;
+	char *infile = 0;
+	char *outfile = 0;
 	char *key = 0;
-	int badops;
+	int badops = 0;
 
 	do { 
 		setup_ui_method();
@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 		}
 		else {
 bad:
+			badops = 1;
 			BIO_printf(bio_err, "unknown option %s\n", *argv);
 			break;
 		}
