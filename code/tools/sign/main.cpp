@@ -12,6 +12,7 @@ static const char *ca_usage[] = {
 	" -cert file      - The CA certificate\n",
 	" -in file        - The input file\n",
 	" -out file       Where-  to put the output file(s)\n",
+	" -md arg         - md to use, one of md2, md5, sha, sha1 or sm3\n",
 	NULL
 };
 
@@ -22,6 +23,7 @@ int main(int argc, char *argv[])
 	char *infile = 0;
 	char *outfile = 0;
 	char *key = 0;
+	char *md = "default";
 	int badops = 0;
 
 	do { 
@@ -58,6 +60,11 @@ int main(int argc, char *argv[])
 				goto bad;
 			certfile = *(++argv);
 		}
+		else if (strcmp(*argv, "-md") == 0) {
+			if (--argc < 1)
+				goto bad;
+			md = *(++argv);
+		}
 		else if (strcmp(*argv, "-in") == 0) {
 			if (--argc < 1)
 				goto bad;
@@ -66,7 +73,6 @@ int main(int argc, char *argv[])
 			if (--argc < 1)
 				goto bad;
 			outfile = *(++argv);
-
 		}
 		else {
 bad:
@@ -86,12 +92,44 @@ bad:
 		return 0;
 	}
 
+	if (keyfile == 0) {
+		BIO_printf(bio_err, "lookup failed for private key");
+		return 0;
+	}
+
+	if (certfile == 0) {
+		BIO_printf(bio_err, "lookup failed for cert file");
+		return 0;
+	}
+
+	if (infile == 0) {
+		BIO_printf(bio_err, "lookup failed for input file");
+		return 0;
+	}
+
+	if (outfile == 0) {
+		outfile = (char *)OPENSSL_malloc(strlen(infile) + 6);
+		strcpy(outfile, infile);
+		strcat(outfile, ".sign");
+	}
 
 	EVP_PKEY *pkey = load_key(bio_err, keyfile, FORMAT_PEM, 0, key, "key");
+	if (pkey == NULL) {
+		BIO_printf(bio_err, "bad key file");
+		return 0;
+	}
+	else {
+		const char *name = OBJ_nid2sn(EVP_PKEY_type(pkey->type));
+	}
 
-	//if (EVP_PKEY_RSA == EVP_PKEY_type(pkey->type)) {
-	//	return 0;
-	//}
+	if (!strcmp(md, "default")) {
+		int def_nid;
+		if (EVP_PKEY_get_default_digest_nid(pkey, &def_nid) <= 0) {
+			BIO_puts(bio_err, "no default digest\n");
+			return 0;
+		}
+		md = (char *)OBJ_nid2sn(def_nid);
+	}
 
 	X509 *x509 = load_cert(bio_err, certfile, FORMAT_PEM, NULL, "server certificate");
 
@@ -102,47 +140,53 @@ bad:
 		return 0;
 	}
 
+	int sigid;
+	if (1 != OBJ_find_sigid_by_algs(&sigid, OBJ_sn2nid(md), EVP_PKEY_type(pkey->type))) {
+		BIO_printf(bio_err,
+			"assign the sign alg\n");
+		return 0;
+	}
+
 	XSign *xsign = XSign_new();
 
 	ASN1_INTEGER_set(xsign->version, 1);
 
 	xsign->origin = ASN1_PRINTABLESTRING_new();
 
-	ASN1_STRING_set(xsign->origin, "zImage", 6);
+	ASN1_STRING_set(xsign->origin, infile, strlen(infile));
 
 	xsign->cert = x509;
 
 	xsign->alg = x509->cert_info->signature;
 
 	xsign->alg = X509_ALGOR_new();
-	// NID_sm3WithSM2
-	xsign->alg ->algorithm = OBJ_nid2obj(NID_sha1WithRSA);
+	xsign->alg ->algorithm = OBJ_nid2obj(sigid);
+	xsign->alg->parameter = ASN1_TYPE_new();
+	xsign->alg->parameter->type = V_ASN1_NULL;
 
 	xsign->signature = ASN1_BIT_STRING_new();
 	//ASN1_STRING_set(xsign->signature, "0123456789abcdef", 16);
 
-	const EVP_MD *md = NULL;
+	const EVP_MD *dgst = NULL;
 	EVP_MD_CTX ctx;
 
 	EVP_MD_CTX_init(&ctx);
-
-	md = EVP_get_digestbyname("md5");
+	dgst = EVP_get_digestbyname(md);
 
 	EVP_PKEY_CTX *pctx = NULL;
-	if (1 != EVP_SignInit_ex(&ctx, md, NULL)) {
+	if (1 != EVP_SignInit_ex(&ctx, dgst, NULL)) {
 		return 0;
 	}
 
 	BIO     *b=NULL;
-	int     len=0,n1=0;
 	char    *out=NULL;
-
+#define BUF_SIZE 1024
 	b=BIO_new_file(infile,"rb");
-	len= 1024;
-	out=(char *)OPENSSL_malloc(len);
+	out=(char *)OPENSSL_malloc(BUF_SIZE);
+	int n1 = 0;
 	do 
 	{     
-		n1 = BIO_read(b, out, len);
+		n1 = BIO_read(b, out, BUF_SIZE);
 
 		if (1 != EVP_SignUpdate(&ctx, out, n1)) {
 			return 0;
@@ -152,8 +196,8 @@ bad:
 	OPENSSL_free(out);
 
 
-	unsigned char digist[1024];
-	int len2 = 1024;
+	unsigned char digist[BUF_SIZE];
+	int len2 = BUF_SIZE;
 	if (EVP_SignFinal(&ctx, digist,
 		(size_t *)&len2, pkey) <= 0) {
 			return -1;
