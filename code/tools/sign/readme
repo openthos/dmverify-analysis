@@ -1,0 +1,1 @@
+sign -cert server.crt -keyfile server.key -in main.efi -out main.efi.sign
