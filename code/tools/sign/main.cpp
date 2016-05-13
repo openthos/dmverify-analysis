@@ -3,7 +3,9 @@
 
 #include "xsign.h"
 
-
+//
+//#include "d:\thtfpc\gmssl\crypto\cpk\cpk.h"
+//
 static const char *ca_usage[] = {
 	"usage: ca args\n",
 	"\n",
@@ -23,23 +25,19 @@ int main(int argc, char *argv[])
 	char *infile = 0;
 	char *outfile = 0;
 	char *key = 0;
-	char *md = "default";
+	const char *md = "default";
 	int badops = 0;
 
 	do { 
 		setup_ui_method();
-		CRYPTO_malloc_init(); 
+		//CRYPTO_malloc_init(); 
 		ERR_load_crypto_strings(); 
 		OpenSSL_add_all_algorithms(); 
 	} while(0);
 
 
 	BIO *bio_err;
-#if defined WIN32
-	bio_err = BIO_new_fd(2, BIO_NOCLOSE);
-#else
-	bio_err = BIO_new_fd(stderr, BIO_NOCLOSE);
-#endif
+	bio_err = BIO_new_fp(stderr, BIO_NOCLOSE);
 
 
 	argc--;
@@ -119,7 +117,7 @@ bad:
 		return 0;
 	}
 	else {
-		const char *name = OBJ_nid2sn(EVP_PKEY_type(pkey->type));
+		//const char *name = OBJ_nid2sn(EVP_PKEY_type(pkey->type));
 	}
 
 	if (!strcmp(md, "default")) {
@@ -141,7 +139,11 @@ bad:
 	}
 
 	int sigid;
+#if 0
 	if (1 != OBJ_find_sigid_by_algs(&sigid, OBJ_sn2nid(md), EVP_PKEY_type(pkey->type))) {
+#else
+	if (1 != OBJ_find_sigid_by_algs(&sigid, OBJ_sn2nid(md), EVP_PKEY_id(pkey))) {
+#endif
 		BIO_printf(bio_err,
 			"assign the sign alg\n");
 		return 0;
@@ -157,8 +159,6 @@ bad:
 
 	xsign->cert = x509;
 
-	xsign->alg = x509->cert_info->signature;
-
 	xsign->alg = X509_ALGOR_new();
 	xsign->alg ->algorithm = OBJ_nid2obj(sigid);
 	xsign->alg->parameter = ASN1_TYPE_new();
@@ -168,13 +168,15 @@ bad:
 	//ASN1_STRING_set(xsign->signature, "0123456789abcdef", 16);
 
 	const EVP_MD *dgst = NULL;
-	EVP_MD_CTX ctx;
+	EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 
-	EVP_MD_CTX_init(&ctx);
+	EVP_MD_CTX_init(ctx);
 	dgst = EVP_get_digestbyname(md);
+	fprintf(stderr, "Using client alg %s\n", EVP_MD_name(dgst));
 
-	EVP_PKEY_CTX *pctx = NULL;
-	if (1 != EVP_SignInit_ex(&ctx, dgst, NULL)) {
+	// EVP_PKEY_CTX *pctx = NULL;
+	if (!EVP_SignInit_ex(ctx, dgst, NULL)) {
+		ERR_print_errors(bio_err);
 		return 0;
 	}
 
@@ -188,7 +190,7 @@ bad:
 	{     
 		n1 = BIO_read(b, out, BUF_SIZE);
 
-		if (1 != EVP_SignUpdate(&ctx, out, n1)) {
+		if (1 != EVP_SignUpdate(ctx, out, n1)) {
 			return 0;
 		}
 	} while(n1>0);
@@ -198,8 +200,8 @@ bad:
 
 	unsigned char digist[BUF_SIZE];
 	int len2 = BUF_SIZE;
-	if (EVP_SignFinal(&ctx, digist,
-		(size_t *)&len2, pkey) <= 0) {
+	if (EVP_SignFinal(ctx, digist,
+		(unsigned int *)&len2, pkey) <= 0) {
 			return -1;
 	}
 	ASN1_STRING_set(xsign->signature, digist, len2);
@@ -209,6 +211,7 @@ bad:
 	unsigned char *ptr = buf;
 	n = i2d_XSign(xsign, &buf);
 
+	EVP_MD_CTX_free(ctx);
 
 	FILE *fp = fopen(outfile, "wb");
 	fwrite(ptr, n, 1, fp);
@@ -229,3 +232,4 @@ bad:
 	return 0;
 
 }
+

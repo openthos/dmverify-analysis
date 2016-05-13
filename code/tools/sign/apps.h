@@ -9,6 +9,8 @@
 #include <openssl/pem.h>
 #include <openssl/pkcs12.h>
 #include <openssl/rand.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
 //#include <openssl/sm2.h>
 //#include <openssl/sm3.h>
 //#include <openssl/sms4.h>
@@ -17,8 +19,13 @@
 #include <openssl/bio.h>
 #include <openssl/err.h>
 
+#if 0
 #pragma comment(lib, "libeay32")
 #pragma comment(lib, "ssleay32")
+#else
+#pragma comment(lib, "libcrypto")
+#pragma comment(lib, "libssl")
+#endif
 
 # define FORMAT_UNDEF    0
 # define FORMAT_ASN1     1
